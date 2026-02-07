@@ -41,11 +41,16 @@ docker network create --driver bridge swarm-net
 1.2 Crear 3 nodos (DinD)
 
 ```bash
+°°
 (solo Dind)
 docker run -d --privileged --name mgr --hostname mgr --network swarm-net -p 8080:8080 docker:24-dind
-°°
-docker run -d --privileged --name mgr --hostname mgr --network swarm-net docker:24-dind (swarm normal)
 
+°°
+(swarm normal)
+docker run -d --privileged --name mgr --hostname mgr --network swarm-net docker:24-dind 
+
+°°
+(aplica para ambos)
 docker run -d --privileged --name w1  --hostname w1  --network swarm-net docker:24-dind
 docker run -d --privileged --name w2  --hostname w2  --network swarm-net docker:24-dind
 ```
