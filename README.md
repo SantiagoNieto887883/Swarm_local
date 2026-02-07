@@ -17,13 +17,7 @@ a) publicar el puerto del mgr hacia tu PC
 
 Recrea el manager así:
 
-1️⃣ Borra el manager
-
-```bash
-docker rm -f mgr
-```
-
-2️⃣ Créalo con port-forward
+1️⃣ Créalo con port-forward
 
 ```bash
 docker run -d --privileged \
