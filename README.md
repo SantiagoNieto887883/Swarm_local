@@ -121,30 +121,109 @@ Abre en navegador: http://localhost:8080
 ✅ Aprendizaje clave: publish en ingress expone el puerto “en todos los nodos” (routing mesh).
 
 
+## 4) Escalar, actualizar, rollback
+
+4.1 Escalar a 5
 
 ```bash
+docker exec mgr sh -lc "docker service scale web=5"
+docker exec mgr sh -lc "docker service ps web"
 ```
 
-```bash
-```
+4.2 Update (cambiar imagen) + observar rollout
 
 ```bash
+docker exec mgr sh -lc "docker service update --image nginx:1.25-alpine web"
+docker exec mgr sh -lc "docker service ps web"
 ```
 
-```bash
-```
+4.3 Forzar un rollback (opcional)
 
 ```bash
+docker exec mgr sh -lc "docker service rollback web"
 ```
+✅ Aprendizaje clave: update/rollback y cómo Swarm reconcilia estado.
+
+## 5) Global service (1 por nodo)
 
 ```bash
+docker exec mgr sh -lc "docker service create --name agent --mode global alpine:3.20 sleep 36000"
+docker exec mgr sh -lc "docker service ps agent"
 ```
+✅ Aprendizaje clave: global = 1 task por nodo. (ojo son 2 servicios adentro de este Dind) (web y agent)
+
+## 6) Labels + placement constraints
+
+6.1 Etiquetar un nodo worker
 
 ```bash
+docker exec mgr sh -lc "docker node update --label-add disk=ssd w1"
 ```
 
-```bash
-```
+6.2 Servicio que solo corre en SSD
 
 ```bash
+docker exec mgr sh -lc "docker service create --name ssd-only --constraint 'node.labels.disk==ssd' alpine:3.20 sleep 36000"
+docker exec mgr sh -lc "docker service ps ssd-only"
+```
+✅ Aprendizaje clave: labels + constraints controlan placement.
+
+## 7) Volúmenes (persistencia) y limitación en Swarm local
+
+Crea un servicio con volumen local (notarás que es local al nodo):
+
+```bash
+docker exec mgr sh -lc "docker service create --name data --replicas 1 --mount type=volume,source=myvol,target=/data alpine:3.20 sh -lc 'echo hola > /data/msg && sleep 36000'"
+
+docker exec mgr sh -lc "docker service ps data"
+```
+✅ Aprendizaje clave: volúmenes en Swarm por defecto son locales, para “shared storage” necesitas NFS/EFS/CEPH/Portworx, etc.
+
+## 8) Stack deploy (compose → stack)
+
+8.1 Crear archivo stack.yml en tu máquina (host)
+
+(compartido en el repositorio)
+
+8.2 Desplegar stack en el manager
+
+Copia el archivo al contenedor manager y despliega:
+
+```bash
+docker cp stack.yml mgr:/stack.yml
+docker exec mgr sh -lc "docker stack deploy -c /stack.yml demo"
+docker exec mgr sh -lc "docker stack services demo"
+docker exec mgr sh -lc "docker stack ps demo"
+```
+Prueba: (solo dentro del docker no Dind)
+
+http://localhost:8090
+
+✅ Aprendizaje clave: docker stack deploy = Swarm.
+
+## 9) Troubleshooting real (simular fallo)
+
+9.1 Crear un servicio con imagen inválida
+
+```bash
+docker exec mgr sh -lc "docker service create --name broken --replicas 2 noexiste/imagen:latest"
+
+"CTRL + C"
+```
+
+9.2 Diagnóstico (lo que espera el examen)
+
+```bash
+docker exec mgr sh -lc "docker service ps broken"
+docker exec mgr sh -lc "docker service inspect broken --pretty"
+```
+✅ Aprendizaje clave: para troubleshooting siempre empezar con docker service ps.
+
+## 10) Limpieza total del lab
+
+```bash
+docker exec mgr sh -lc "docker stack rm demo"
+docker exec mgr sh -lc "docker service rm web agent ssd-only data broken || true"
+docker rm -f mgr w1 w2
+docker network rm swarm-net
 ```
