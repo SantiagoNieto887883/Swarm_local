@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  whoami:
+    image: traefik/whoami
+    networks:
+      - app-net
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "8090:80"
+
+networks:
+  app-net:
+    external: true
