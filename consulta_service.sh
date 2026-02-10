@@ -1,0 +1,1 @@
+docker exec mgr sh -lc "docker service ps web"
