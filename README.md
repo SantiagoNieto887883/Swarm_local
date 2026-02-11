@@ -15,19 +15,6 @@ docker swarm leave --force
 
 a) publicar el puerto del mgr hacia tu PC
 
-Recrea el manager así:
-
-1️⃣ Créalo con port-forward
-
-```bash
-docker run -d --privileged \
-  -p 8080:8080 \
-  --name mgr \
-  --hostname mgr \
-  --network swarm-net \
-  docker:24-dind
-```
-
 ## 1) Crear un Swarm “multi-nodo” en tu máquina con Docker-in-Docker
 
 Vamos a simular 1 manager + 2 workers como contenedores (muy útil en local).
@@ -39,6 +26,8 @@ docker network create --driver bridge swarm-net
 ```
 
 1.2 Crear 3 nodos (DinD)
+
+si usas Dind (docker in docker) publica el puerto del mgr hacia tu PC
 
 ```bash
 °°
@@ -141,6 +130,10 @@ docker exec mgr sh -lc "docker service ps web"
 
 ```bash
 docker exec mgr sh -lc "docker service rollback web"
+
+°°
+
+docker exec mgr sh -lc "docker service update --rollback web"
 ```
 ✅ Aprendizaje clave: update/rollback y cómo Swarm reconcilia estado.
 
