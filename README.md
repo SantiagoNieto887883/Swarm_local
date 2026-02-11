@@ -11,9 +11,6 @@ docker info | grep -i swarm
 ```bash
 docker swarm leave --force
 ```
-## si usas Dind (docker in docker)
-
-a) publicar el puerto del mgr hacia tu PC
 
 ## 1) Crear un Swarm “multi-nodo” en tu máquina con Docker-in-Docker
 
