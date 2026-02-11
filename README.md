@@ -54,10 +54,11 @@ docker exec w2  sh -lc "apk add --no-cache docker-cli"
 2.1 Inicializa Swarm en el manager
 
 ```bash
+(ambiente real)
 docker exec mgr sh -lc "docker swarm init --autolock --advertise-addr mgr"
 
 °°
-
+(Dind)
 docker exec mgr sh -lc "docker swarm init --autolock --advertise-addr eth0"
 
 ```
